@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Codeplay-Code | Not Found</title>
+<meta name="description" content="Highest quality themes and templates and Script Php , GPL Licensed and free to use.">
+<meta name="viewport" content="initial-scale = 1.0">
+<link rel="icon" sizes="32x32" type="image/x-icon" href="https://marcocodeplay.altervista.org/favicon.ico">
+<link rel="icon" sizes="any" type="image/svg+xml" href="https://marcocodeplay.altervista.org/favicon.svg">
+<link rel="mask-icon" href="https://marcocodeplay.altervista.org/favicon.svg" color="#4f4f4f">
+<link rel="alternate" href="https://marcocodeplay.altervista.org/feed/" type="application/rss+xml" title="Codeplay-Code">
+<link rel="stylesheet" href="https://marcocodeplay.altervista.org/modules/highlighter/styles/default.min.css" type="text/css" media="all">
+<link rel="stylesheet" href="https://marcocodeplay.altervista.org/modules/likes/likes.css" type="text/css" media="all">
+<link rel="stylesheet" href="https://marcocodeplay.altervista.org/themes/blossom/stylesheets/all.css" type="text/css" media="all">
+<script src="https://marcocodeplay.altervista.org/includes/common.js" type="text/javascript" charset="UTF-8"></script>
+<script nonce="">'use strict';
+
+$(function() {
+    Post.init();
+    Page.init();
+});
+var Route = {
+    action: 'demo'
+}
+var Visitor = {
+    id: 0,
+    token: '90332cbdefda55458436d097c05311a68e60e42e'
+}
+var Site = {
+    url: 'https://marcocodeplay.altervista.org',
+    chyrp_url: 'https://marcocodeplay.altervista.org'
+}
+var Oops = {
+    message: 'Oops! Something went wrong on this web page.'
+}
+var Post = {
+    failed: false,
+    init: function() {
+        $(".post").last().parent().on("click", ".post_delete_link:not(.no_ajax)", function(e) {
+            if (!Post.failed) {
+                e.preventDefault();
+
+                if (confirm('Are you sure you want to delete this post?')) {
+                    var id = $(this).attr("id");
+                    var post_id = (!!id) ? id.replace(/^post_delete_/, "") : "0" ;
+                    Post.destroy(post_id);
+                }
+            }
+        });
+    },
+    destroy: function(id) {
+        var thisPost = $("#post_" + id).loader();
+
+        $.post("https://marcocodeplay.altervista.org/ajax/", {
+            action: "destroy_post",
+            id: id,
+            hash: Visitor.token
+        }, function(response) {
+            thisPost.loader(true).fadeOut("fast", function() {
+                $(this).remove();
+
+                if (!$("article.post").length)
+                    window.location.href = Site.url;
+            });
+        }, "json").fail(Post.panic);
+    },
+    panic: function(message) {
+        message = (typeof message === "string") ?
+            message :
+            Oops.message ;
+
+        Post.failed = true;
+        alert(message);
+        $(".ajax_loading").loader(true);
+    }
+}
+var Page = {
+    failed: false,
+    init: function() {
+        $(".page_delete_link:not(.no_ajax)").on("click", function(e) {
+            if (!Page.failed) {
+                e.preventDefault();
+
+                if (confirm('Are you sure you want to delete this page and its child pages?')) {
+                    var id = $(this).attr("id");
+                    var page_id = (!!id) ? id.replace(/^page_delete_/, "") : "0" ;
+                    Page.destroy(page_id);
+                }
+            }
+        });
+    },
+    destroy: function(id) {
+        var thisPage = $("#page_" + id).loader();
+
+        $.post("https://marcocodeplay.altervista.org/ajax/", {
+            action: "destroy_page",
+            id: id,
+            hash: Visitor.token
+        }, function(response) {
+            thisPage.loader(true).fadeOut("fast", function() {
+                $(this).remove();
+                window.location.href = Site.url;
+            });
+        }, "json").fail(Page.panic);
+    },
+    panic: function(message) {
+        message = (typeof message === "string") ?
+            message :
+            Oops.message ;
+
+        Page.failed = true;
+        alert(message);
+        $(".ajax_loading").loader(true);
+    }
+}
+var ChyrpHighlighter = {
+    init: function() {
+        $("pre > code").each(function(index, block) {
+            hljs.highlightElement(block);
+        });
+        ChyrpHighlighter.watch();
+    },
+    watch: function() {
+        // Watch for DOM additions on blog pages.
+        if ( !!window.MutationObserver && $(".post").length ) {
+            var target = $(".post").last().parent()[0];
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    for (var i = 0; i < mutation.addedNodes.length; ++i) {
+                        var item = mutation.addedNodes[i];
+                        $(item).find("pre > code").each(function(y, block) {
+                            hljs.highlightElement(block);
+                        });
+                    }
+                });
+            });
+            var config = { childList: true, subtree: true };
+            observer.observe(target, config);
+        }
+    }   
+}
+$(document).ready(ChyrpHighlighter.init);
+var ChyrpLikes = {
+    failed: false,
+    busy: false,
+    init: function() {
+        $("div.likes a.likes").click(function(e) {
+            if (!ChyrpLikes.failed) {
+                e.preventDefault();
+                ChyrpLikes.toggle($(this).attr("data-post_id"));
+            }
+        });
+        ChyrpLikes.watch();
+    },
+    watch: function() {
+        // Watch for DOM additions on blog pages.
+        if (!!window.MutationObserver && $(".post").length) {
+            var target = $(".post").last().parent()[0];
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    for (var i = 0; i < mutation.addedNodes.length; ++i) {
+                        var item = mutation.addedNodes[i];
+                        $(item).find("div.likes a.likes").click(function(e) {
+                            e.preventDefault();
+                            ChyrpLikes.toggle($(this).attr("data-post_id"));
+                        });
+                    }
+                });
+            });
+            var config = { childList: true, subtree: true };
+            observer.observe(target, config);
+        }
+    },
+    send: function(post_id, callback, isUnlike) {
+        if (!ChyrpLikes.busy && !ChyrpLikes.failed) {
+            $.ajax({
+                type: "POST",
+                url: "https://marcocodeplay.altervista.org/ajax/",
+                data: {
+                    "action": (isUnlike) ? "unlike" : "like",
+                    "post_id": post_id
+                },
+                beforeSend: function() {
+                    ChyrpLikes.busy = true;	
+                },
+                success: function(response) {
+                    // Action was ignored if data value is false.
+                    if (response.data === true)
+                        callback(response);
+                },
+                complete: function() {
+                    ChyrpLikes.busy = false;
+                },
+                dataType: "json",
+                error: ChyrpLikes.panic
+            });
+        }
+    },
+    toggle: function(post_id) {
+        if ($("#likes_" + post_id + " a.liked").length)
+            ChyrpLikes.send(post_id, function(response) {
+                var div = $("#likes_" + post_id);
+                div.children("span.like_text").html(response.text);
+                div.children("a.liked").removeClass("liked").addClass("like");
+            }, true);
+        else
+            ChyrpLikes.send(post_id, function(response) {
+                var div = $("#likes_" + post_id);
+                div.children("span.like_text").html(response.text);
+                div.children("a.like").removeClass("like").addClass("liked");
+            }, false);
+    },
+    panic: function() {
+        ChyrpLikes.failed = true;
+        alert(Oops.message);
+    }
+};
+$(document).ready(ChyrpLikes.init);
+var ChyrpComment = {
+    editing: 0,
+    notice: 0,
+    interval: null,
+    failed: false,
+    reload: false,
+    delay: Math.abs(10000),
+    per_page: 25,
+    init: function() {
+        if (ChyrpComment.reload && ChyrpComment.delay > 0)
+            ChyrpComment.interval = setInterval(ChyrpComment.fetch, ChyrpComment.delay);
+
+        $("#add_comment:not(.no_ajax)").on("submit", function(e) {
+            if (!ChyrpComment.failed && !!window.FormData) {
+                e.preventDefault();
+                $("#comments .comment_form").loader();
+
+                // Submit the form.
+                $.ajax({
+                    error: ChyrpComment.panic,
+                    type: "POST",
+                    url: "https://marcocodeplay.altervista.org/ajax/",
+                    data: new FormData(this),
+                    processData: false,
+                    contentType: false,
+                    dataType: "json"
+                }).done(function(response) {
+                    $("#comments .comment_form").loader(true);
+                    alert(response.text);
+
+                    // Reload the page to view the newly created comment.
+                    if (response.data !== false)
+                        window.location.reload(true);
+                });
+            }
+        });
+        $("#comments").on("click", ".comment_edit_link:not(.no_ajax)", function(e) {
+            if (!ChyrpComment.failed) {
+                e.preventDefault();
+                var id = $(this).attr("id").replace(/comment_edit_/, "");
+                ChyrpComment.edit(id);
+            }
+        });
+        $("#comments").on("click", ".comment_delete_link:not(.no_ajax)", function(e) {
+            if (!ChyrpComment.failed) {
+                e.preventDefault();
+                ChyrpComment.notice++;
+
+                if (confirm('Are you sure you want to permanently delete this comment?')) {
+                    var id = $(this).attr("id").replace(/comment_delete_/, "");
+                    ChyrpComment.destroy(id);
+                }
+
+                ChyrpComment.notice--;
+            }
+        });
+    },
+    fetch: function() {
+        if (ChyrpComment.failed ||
+            $("#comments").attr("data-post_id") == undefined ||
+            $("#comments").attr("data-timestamp") == undefined)
+                return;
+
+        var comments = $("#comments");
+        var id = comments.attr("data-post_id");
+        var ts = comments.attr("data-timestamp");
+
+        if (ChyrpComment.editing == 0 && ChyrpComment.notice == 0 && !ChyrpComment.failed &&
+            $("#comments .comment").length < ChyrpComment.per_page) {
+                $.ajax({
+                    error: ChyrpComment.panic,
+                    type: "POST",
+                    dataType: "json",
+                    url: "https://marcocodeplay.altervista.org/ajax/",
+                    data: {
+                        action: "reload_comments",
+                        post_id: id,
+                        last_comment: ts
+                    }
+                }).done(function(response) {
+                    if (response.data.comment_ids.length > 0) {
+                        $("#comments").attr("data-timestamp", response.data.last_comment);
+                        $.each(response.data.comment_ids, function(i, id) {
+                            $.post("https://marcocodeplay.altervista.org/ajax/", {
+                                action: "show_comment",
+                                comment_id: id
+                            }, function(data){
+                                $(data).insertBefore("#comment_shim").hide().fadeIn("slow");
+                            }, "html").fail(ChyrpComment.panic);
+                        });
+                    }
+                });
+        }
+    },
+    edit: function(id) {
+        ChyrpComment.editing++;
+
+        var thisItem = $("#comment_" + id).loader();
+
+        $.post("https://marcocodeplay.altervista.org/ajax/", {
+            action: "edit_comment",
+            comment_id: id,
+            hash: Visitor.token
+        }, function(data) {
+            thisItem.fadeOut("fast", function() {
+                $(this).loader(true);
+                $(this).empty().append(data).fadeIn("fast", function() {
+                    var thisForm = $("#comment_edit_" + id);
+
+                    thisForm.on("submit", function(e) {
+                        if (!ChyrpComment.failed && !!window.FormData) {
+                            e.preventDefault();
+                            thisItem.loader();
+
+                            // Submit the form.
+                            $.ajax({
+                                error: ChyrpComment.panic,
+                                type: "POST",
+                                url: "https://marcocodeplay.altervista.org/ajax/",
+                                data: new FormData(thisForm[0]),
+                                processData: false,
+                                contentType: false,
+                                dataType: "json"
+                            }).done(function(response) {
+                                // Validation failed if data value is false.
+                                if (response.data === false) {
+                                    $(thisItem).loader(true);
+                                    alert(response.text);
+                                    return;
+                                }
+
+                                ChyrpComment.editing--;
+
+                                // Load the updated post in place of the edit form.
+                                $.post("https://marcocodeplay.altervista.org/ajax/", {
+                                    action: "show_comment",
+                                    comment_id: id
+                                }, function(data) {
+                                    thisItem.fadeOut("fast", function() {
+                                        $(this).replaceWith(data).fadeIn("fast");
+                                    });
+                                }, "html").fail(ChyrpComment.panic);
+                            });
+                        }
+                    });
+                    $("#comment_cancel_edit_" + id).click(function(e) {
+                        e.preventDefault();
+
+                        if (!ChyrpComment.failed) {
+                            thisItem.loader();
+                            $.post("https://marcocodeplay.altervista.org/ajax/", {
+                                action: "show_comment",
+                                comment_id: id
+                            }, function(data){
+                                thisItem.fadeOut("fast", function() {
+                                    $(this).replaceWith(data).fadeIn("fast");
+                                });
+                            });
+                            ChyrpComment.editing--;
+                        }
+                    });
+                })
+            });
+        }, "html").fail(ChyrpComment.panic);
+    },
+    destroy: function(id) {
+        var thisItem = $("#comment_" + id).loader();
+
+        $.post("https://marcocodeplay.altervista.org/ajax/", {
+            action: "destroy_comment",
+            id: id,
+            hash: Visitor.token
+        }, function(response){
+            thisItem.fadeOut("fast", function() {
+                $(this).remove();
+            });
+        }, "json").fail(ChyrpComment.panic);
+    },
+    panic: function(message) {
+        message = (typeof message === "string") ?
+            message :
+            Oops.message ;
+
+        ChyrpComment.failed = true;
+        alert(message);
+        $(".ajax_loading").loader(true);
+        $("#comments form input[name='ajax']").remove();
+    }
+};
+$(document).ready(ChyrpComment.init);
+var ChyrpLightbox = {
+    background: "grey",
+    spacing: 48 + Math.abs("24"),
+    protect: true,
+    active: false,
+    styles: {
+        fg: {
+            "display": "block",
+            "position": "absolute",
+            "top": "0px",
+            "left": "0px",
+            "width": "auto",
+            "height": "auto",
+            "cursor": "crosshair",
+            "visibility": "hidden"
+        },
+        bg: {
+            "position": "fixed",
+            "top": "0px",
+            "right": "0px",
+            "bottom": "0px",
+            "left": "0px",
+            "z-index": 2147483646,
+            "opacity": 0,
+            "transition-property": "opacity",
+            "transition-duration": "500ms",
+            "cursor": "wait",
+            "background-repeat": "no-repeat",
+            "background-position": "right 12px top 12px",
+            "background-image": "url('" + Site.chyrp_url + "/modules/lightbox/images/close.svg')"
+        },
+        image: {
+            "cursor": "pointer",
+        },
+        black: {
+            "background-color": "#2f2f2f"
+        },
+        grey: {
+            "background-color": "#7f7f7f"
+        },
+        white: {
+            "background-color": "#ffffff"
+        },
+        inherit: {
+            "background-color": "inherit"
+        },
+    },
+    init: function() {
+        $.extend(
+            ChyrpLightbox.styles.bg,
+            ChyrpLightbox.styles[ChyrpLightbox.background]
+        );
+
+        $("section img").not(".suppress_lightbox").each(function() {
+            $(this).on("click", ChyrpLightbox.load).css(
+                ChyrpLightbox.styles.image
+            );
+
+            if (ChyrpLightbox.protect && !$(this).hasClass("suppress_protect"))
+                $(this).on("contextmenu", ChyrpLightbox.prevent);
+        });
+
+        $(window).on({
+            resize: ChyrpLightbox.hide,
+            scroll: ChyrpLightbox.hide,
+            orientationchange: ChyrpLightbox.hide,
+            popstate: ChyrpLightbox.hide
+        });
+
+        ChyrpLightbox.watch();
+    },
+    prevent: function(e) {
+        e.preventDefault();
+    },
+    watch: function() {
+        // Watch for DOM additions on blog pages.
+        if (!!window.MutationObserver && $(".post").length) {
+            var target = $(".post").last().parent()[0];
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    for (var i = 0; i < mutation.addedNodes.length; ++i) {
+                        var item = mutation.addedNodes[i];
+
+                        $(item).find("section img").not(".suppress_lightbox").each(function() {
+                            $(this).on("click", ChyrpLightbox.load).css(
+                                ChyrpLightbox.styles.image
+                            );
+
+                            if (ChyrpLightbox.protect && !$(this).hasClass("suppress_protect"))
+                                $(this).on("contextmenu", ChyrpLightbox.prevent);
+                        });
+                    }
+                });
+            });
+            var config = { childList: true, subtree: true };
+            observer.observe(target, config);
+        }
+    },
+    load: function(e) {
+        if (ChyrpLightbox.active == false) {
+            e.preventDefault();
+
+            var src = $(this).attr("src");
+            var alt = $(this).attr("alt");
+
+            $("<div>", {
+                "id": "ChyrpLightbox-bg",
+                "role": "button",
+                "tabindex": "0",
+                "accesskey": "x",
+                "aria-label": 'Stop displaying this image'
+            }).css(
+                ChyrpLightbox.styles.bg
+            ).on("click", function(e) {
+                if (e.target === e.currentTarget)
+                    ChyrpLightbox.hide();
+            }).append(
+                $("<img>", {
+                    "id": "ChyrpLightbox-fg",
+                    "src": src,
+                    "alt": alt
+                }).css(
+                    ChyrpLightbox.styles.fg
+                ).on("load", ChyrpLightbox.show)
+            ).appendTo("body");
+
+            ChyrpLightbox.active = true;
+        }
+    },
+    show: function() {
+        var fg = $("#ChyrpLightbox-fg");
+        var fgWidth = fg.outerWidth();
+        var fgHeight = fg.outerHeight();
+        var bg = $("#ChyrpLightbox-bg");
+        var bgWidth = bg.outerWidth();
+        var bgHeight = bg.outerHeight();
+        var sp = ChyrpLightbox.spacing * 2;
+
+        if (ChyrpLightbox.protect)
+            $(fg).on({
+                contextmenu: function() { return false; }
+            });
+
+        while (((bgWidth - sp) < fgWidth) || ((bgHeight - sp) < fgHeight)) {
+            Math.round(fgWidth = fgWidth * 0.99);
+            Math.round(fgHeight = fgHeight * 0.99);
+        }
+
+        fg.css({
+            "top": Math.round((bgHeight - fgHeight) / 2) + "px",
+            "left": Math.round((bgWidth - fgWidth) / 2) + "px",
+            "width": fgWidth + "px",
+            "height": fgHeight + "px",
+            "visibility": "visible",
+        });
+        bg.css({
+            "opacity": 1,
+            "cursor": "pointer"
+        });
+    },
+    hide: function() {
+        $("#ChyrpLightbox-bg").remove();
+        ChyrpLightbox.active = false;
+    }
+}
+$(document).ready(ChyrpLightbox.init);
+var ChyrpMathJax = {
+    busy: false,
+    init: function() {
+        ChyrpMathJax.watch();
+    },
+    watch: function() {
+        // Watch for DOM additions on blog pages.
+        if ( !!window.MutationObserver && $(".post").length ) {
+            var target = $(".post").last().parent()[0];
+            var observer = new MutationObserver(function(mutations) {
+                if (!ChyrpMathJax.busy) {
+                    ChyrpMathJax.busy = true;
+                    MathJax.typesetPromise().finally(function() {
+                        ChyrpMathJax.busy = false;
+                    });
+                }
+            });
+            var config = { childList: true, subtree: true };
+            observer.observe(target, config);
+        }
+    }   
+}
+$(document).ready(ChyrpMathJax.init);
+</script>
+<script src="https://marcocodeplay.altervista.org/modules/highlighter/highlight.min.js" type="text/javascript" charset="UTF-8"></script>
+<script src="https://marcocodeplay.altervista.org/modules/mathjax/es5/tex-mml-chtml.js" type="text/javascript" charset="UTF-8"></script>
+<script src="https://marcocodeplay.altervista.org/themes/blossom/javascripts/theme.js" type="text/javascript" charset="UTF-8"></script>
+
+</head>
+<body class="route_demo">
+<!-- Mast -->
+<div id="mast" role="banner">
+<h1 class="banner"><a href="https://marcocodeplay.altervista.org/">Codeplay-Code</a></h1>
+<form class="search_box" action="https://marcocodeplay.altervista.org/search/" method="post" accept-charset="UTF-8" role="search">
+<input type="text" id="search_field" name="query" value="" placeholder="Search&hellip;" aria-label="Search this blog">
+<button type="submit" id="search_submit">Search</button>
+</form>
+</div>
+<!-- Sidebar -->
+<div id="sidebar" role="navigation">
+<h1 class="banner"><a href="https://marcocodeplay.altervista.org/">Codeplay-Code</a></h1>
+<form class="search_box" action="https://marcocodeplay.altervista.org/search/" method="post" accept-charset="UTF-8" role="search">
+<input type="text" id="sidebar_search_field" name="query" value="" placeholder="Search&hellip;" aria-label="Search this blog">
+<button type="submit" id="sidebar_search_submit">Search</button>
+</form>
+<ul class="navigation sidebar" aria-label="Links">
+<li>
+<a href="https://marcocodeplay.altervista.org/index/">Blog</a>
+</li>
+<li>
+<a href="&#x0006D;&#x00061;&#x00069;&#x0006C;&#x00074;&#x0006F;&#x0003A;&#x00025;&#x00036;&#x00032;&#x00025;&#x00036;&#x00046;&#x00025;&#x00036;&#x00044;&#x00025;&#x00036;&#x00032;&#x00025;&#x00036;&#x00046;&#x00025;&#x00036;&#x00043;&#x00025;&#x00036;&#x00046;&#x00025;&#x00033;&#x00037;&#x00025;&#x00033;&#x00036;&#x00025;&#x00036;&#x00032;&#x00025;&#x00036;&#x00037;&#x00025;&#x00034;&#x00030;&#x00025;&#x00036;&#x00037;&#x00025;&#x00036;&#x00044;&#x00025;&#x00036;&#x00031;&#x00025;&#x00036;&#x00039;&#x00025;&#x00036;&#x00043;&#x00025;&#x00032;&#x00045;&#x00025;&#x00036;&#x00033;&#x00025;&#x00036;&#x00046;&#x00025;&#x00036;&#x00044;">Email</a>
+</li>
+<li>
+<a href="https://marcocodeplay.altervista.org/feed/" rel="alternate">Feed</a>
+</li>
+<li>
+<a href="https://marcocodeplay.altervista.org/register/">Register</a>
+</li>
+<li>
+<a href="https://marcocodeplay.altervista.org/login/">Log in</a>
+</li>
+</ul>
+<h4 id="label_categories">Categories</h4>
+<ul class="navigation sidebar categories" aria-labelledby="label_categories">
+<li>
+<a href="https://marcocodeplay.altervista.org/category/php-scripts/">PHP Scripts</a>
+</li>
+<li>
+<a href="https://marcocodeplay.altervista.org/category/wordpress-themes/">Wordpress Themes</a>
+</li>
+<li>
+<a href="https://marcocodeplay.altervista.org/category/html-templates/">Html Templates</a>
+</li>
+</ul>
+<h4 id="label_my_pages">Pages</h4>
+<ul class="navigation sidebar my_pages" aria-labelledby="label_my_pages">
+<li class="page">
+<a href="https://marcocodeplay.altervista.org/about/">About</a>
+</li>
+</ul>
+<h4 id="label_recent_posts">Recent Posts</h4>
+<ul class="navigation sidebar recent_posts" aria-labelledby="label_recent_posts">
+<li>
+<a href="https://marcocodeplay.altervista.org/yui-v22---mobile-template/">Yui v2.2 - Mobile Template</a>
+</li>
+<li>
+<a href="https://marcocodeplay.altervista.org/prize---tailwind-css-3-pricing-sections/">Prize - Tailwind CSS 3...</a>
+</li>
+<li>
+<a href="https://marcocodeplay.altervista.org/noxfolio---personal-portfolio-resume-html-template/">Noxfolio - Personal...</a>
+</li>
+<li>
+<a href="https://marcocodeplay.altervista.org/phpblog---blog-magazine-script/">phpBlog - Blog & Magazine...</a>
+</li>
+</ul>
+<h4 id="label_archive_list">
+<a href="https://marcocodeplay.altervista.org/archive/" rel="archives">Archive</a>
+</h4>
+<ul class="navigation sidebar archive_list" aria-labelledby="label_archive_list">
+<li>
+<a href="https://marcocodeplay.altervista.org/archive/2023/10/"><Time Datetime="2023-10-01T00:00:00+02:00">October 2023</Time></a>
+</li>
+<li>
+<a href="https://marcocodeplay.altervista.org/archive/2023/09/"><Time Datetime="2023-09-01T00:00:00+02:00">September 2023</Time></a>
+</li>
+</ul>
+</div>
+<!-- Content -->
+<div id="main" role="main">
+<div class="ribbon flash">
+<h3 role="status" class="ribbon">The requested resource was not found.</h3>
+</div>
+</div>
+<!-- Footer -->
+<ul id="nav" role="menu" class="navigation">
+<li role="presentation">
+<a role="menuitem" href="https://marcocodeplay.altervista.org/index/">Blog</a>
+</li>
+<li role="presentation" class="page">
+<a role="menuitem" href="https://marcocodeplay.altervista.org/about/">About</a>
+</li>
+<li role="presentation">
+<a role="menuitem" href="&#x0006D;&#x00061;&#x00069;&#x0006C;&#x00074;&#x0006F;&#x0003A;&#x00025;&#x00036;&#x00032;&#x00025;&#x00036;&#x00046;&#x00025;&#x00036;&#x00044;&#x00025;&#x00036;&#x00032;&#x00025;&#x00036;&#x00046;&#x00025;&#x00036;&#x00043;&#x00025;&#x00036;&#x00046;&#x00025;&#x00033;&#x00037;&#x00025;&#x00033;&#x00036;&#x00025;&#x00036;&#x00032;&#x00025;&#x00036;&#x00037;&#x00025;&#x00034;&#x00030;&#x00025;&#x00036;&#x00037;&#x00025;&#x00036;&#x00044;&#x00025;&#x00036;&#x00031;&#x00025;&#x00036;&#x00039;&#x00025;&#x00036;&#x00043;&#x00025;&#x00032;&#x00045;&#x00025;&#x00036;&#x00033;&#x00025;&#x00036;&#x00046;&#x00025;&#x00036;&#x00044;">Email</a>
+</li>
+<li role="presentation">
+<a role="menuitem" href="https://marcocodeplay.altervista.org/feed/" rel="alternate">Feed</a>
+</li>
+<li role="presentation">
+<a role="menuitem" href="https://marcocodeplay.altervista.org/archive/" rel="archives">Archive</a>
+</li>
+<li role="presentation">
+<a role="menuitem" href="https://marcocodeplay.altervista.org/register/">Register</a>
+</li>
+<li role="presentation">
+<a role="menuitem" href="https://marcocodeplay.altervista.org/login/">Log in</a>
+</li>
+<li role="presentation" id="mobile_toggle" aria-hidden="true">
+<a role="menuitem" id="mobile_toggle_link" href="#">Menu</a>
+</li>
+</ul>
+
+</body>
+<!-- Queries: 9 | Load Time: 0.020 -->
+</html>
