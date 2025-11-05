@@ -1,16 +1,14 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "portfolio-website",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
-  "homepage": "https://tariqmalik123.github.io/portfolio-website",
+  "homepage": "https://tariqmalik.dev",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:dev": "vite build --mode development",
-    "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build",
+    "predeploy": "vite build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
