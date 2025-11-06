@@ -1,5 +1,6 @@
 {
   "name": "portfolio-website",
+  "homepage": "https://github.com/tariqmalik123/portfolio-website.git/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,7 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist -r https://github.com/tariqmalik123/portfolio-website.git"
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "react": "^19.1.1",
