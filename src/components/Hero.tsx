@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ArrowRight, Calendar, Star, Shield, Heart, Stethoscope, Activity, Users, Zap } from "lucide-react";
-import heroImage from "@/assets/hero-image.jpg";
+import heroImage from "@/assets/tariq.png";
 
 const Hero = () => {
   const [counters, setCounters] = useState({ 
