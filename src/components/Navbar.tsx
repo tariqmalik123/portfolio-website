@@ -1,14 +1,28 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X, Stethoscope, Heart, Phone } from "lucide-react";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
+      
+      // Update active section based on scroll position
+      const sections = ["home", "about", "experience", "services", "portfolio", "skills", "contact"];
+      const current = sections.find(section => {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          return rect.top <= 100 && rect.bottom >= 100;
+        }
+        return false;
+      });
+      if (current) setActiveSection(current);
     };
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -29,126 +43,121 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { name: "Home", id: "home" },
-    { name: "About", id: "about" },
-    { name: "Experience", id: "experience" },
-    { name: "Services", id: "services" },
-    { name: "Portfolio", id: "portfolio" },
-    { name: "Skills", id: "skills" },
-    { name: "Contact", id: "contact" },
+    { name: "Home", id: "home", icon: <Heart size={16} /> },
+    { name: "About", id: "about", icon: <Stethoscope size={16} /> },
+    { name: "Experience", id: "experience", icon: <Heart size={16} /> },
+    { name: "Services", id: "services", icon: <Stethoscope size={16} /> },
+    { name: "Portfolio", id: "portfolio", icon: <Heart size={16} /> },
+    { name: "Skills", id: "skills", icon: <Stethoscope size={16} /> },
+    { name: "Contact", id: "contact", icon: <Phone size={16} /> },
   ];
 
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled 
-          ? "bg-white/70 dark:bg-card/70 backdrop-blur-xl" 
-          : "bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 backdrop-blur-md"
+          ? "bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-gray-200 dark:border-gray-700 shadow-lg" 
+          : "bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-transparent"
       }`}
-      style={{
-        boxShadow: isScrolled ? 'var(--shadow-navbar)' : 'none',
-        borderBottom: isScrolled ? '1px solid hsl(var(--border) / 0.5)' : 'none',
-      }}
     >
-      <div className="container-custom">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
+          {/* Logo */}
           <button 
             onClick={() => scrollToSection("home")}
-            className="group relative flex items-center gap-2 text-2xl font-bold transition-all duration-300 hover:scale-105"
+            className="group flex items-center gap-3 transition-all duration-300 hover:scale-105"
           >
-            <div className="absolute -inset-2 bg-gradient-to-r from-primary via-accent to-secondary rounded-lg opacity-0 group-hover:opacity-20 blur transition-all duration-500"></div>
-            <Sparkles className="relative w-6 h-6 text-accent animate-glow-pulse" />
-            <span className="relative gradient-text">Tariq Malik</span>
+            <div className="relative">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                <Stethoscope className="text-white" size={20} />
+              </div>
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl opacity-0 group-hover:opacity-20 blur transition-opacity duration-500"></div>
+            </div>
+            <div className="text-left">
+              <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                Tariq Malik
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 -mt-1">
+                Healthcare Tech
+              </div>
+            </div>
           </button>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-2">
-            {navLinks.map((link, index) => (
+          <div className="hidden lg:flex items-center space-x-1">
+            {navLinks.map((link) => (
               <button
                 key={link.id}
                 onClick={() => scrollToSection(link.id)}
-                className="relative px-4 py-2 text-foreground/80 hover:text-primary font-medium transition-all duration-300 group"
-                style={{ animationDelay: `${index * 0.1}s` }}
+                className={`relative flex items-center gap-2 px-4 py-2 font-medium transition-all duration-300 group rounded-lg ${
+                  activeSection === link.id
+                    ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30"
+                    : "text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                }`}
               >
-                <span className="relative z-10">{link.name}</span>
-                <span className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300 origin-center"></span>
-                <span 
-                  className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-primary via-accent to-secondary transition-all duration-300 group-hover:w-full"
-                  style={{ boxShadow: 'var(--shadow-glow)' }}
-                ></span>
+                <span className={`transition-colors duration-300 ${
+                  activeSection === link.id ? "text-blue-500" : "text-gray-400 group-hover:text-blue-400"
+                }`}>
+                  {link.icon}
+                </span>
+                <span>{link.name}</span>
+                
+                {/* Active indicator */}
+                {activeSection === link.id && (
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-blue-500 rounded-full"></div>
+                )}
               </button>
             ))}
+            
+            {/* CTA Button */}
             <button 
               onClick={() => scrollToSection("contact")}
-              className="relative ml-4 px-8 py-3 font-semibold text-white rounded-lg overflow-hidden group transition-all duration-300 hover:scale-105 hover:shadow-2xl"
-              style={{
-                background: 'var(--gradient-navbar)',
-                boxShadow: 'var(--shadow-glow)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = 'var(--shadow-glow-hover)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = 'var(--shadow-glow)';
-              }}
+              className="ml-4 flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl"
             >
-              <span className="relative z-10">Get In Touch</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-secondary via-accent to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <Phone size={16} />
+              Get In Touch
             </button>
           </div>
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden relative p-2 text-foreground hover:text-primary transition-all duration-300 hover:scale-110"
+            className="lg:hidden relative p-3 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            style={{
-              background: isMobileMenuOpen ? 'var(--gradient-primary)' : 'transparent',
-              borderRadius: '0.5rem',
-              color: isMobileMenuOpen ? 'white' : undefined,
-            }}
           >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div 
-            className="md:hidden py-4 animate-slide-down"
-            style={{
-              background: 'linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--card) / 0.95) 100%)',
-              borderRadius: '1rem',
-              marginBottom: '1rem',
-              boxShadow: 'var(--shadow-navbar)',
-            }}
-          >
+          <div className="lg:hidden py-4 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl mb-4">
             <div className="flex flex-col space-y-2 px-4">
-              {navLinks.map((link, index) => (
+              {navLinks.map((link) => (
                 <button
                   key={link.id}
                   onClick={() => scrollToSection(link.id)}
-                  className="relative text-foreground/80 hover:text-primary font-medium transition-all duration-300 text-left py-3 px-4 rounded-lg group hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10"
-                  style={{ 
-                    animationDelay: `${index * 0.05}s`,
-                    animation: 'fade-in 0.4s ease-out forwards',
-                  }}
+                  className={`flex items-center gap-3 py-3 px-4 rounded-xl font-medium transition-all duration-300 text-left ${
+                    activeSection === link.id
+                      ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-blue-600 dark:hover:text-blue-400"
+                  }`}
                 >
-                  <span className="relative z-10">{link.name}</span>
-                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 bg-gradient-to-b from-primary to-accent rounded-full transition-all duration-300 group-hover:h-full"></span>
+                  <span className={`transition-colors duration-300 ${
+                    activeSection === link.id ? "text-blue-500" : "text-gray-400"
+                  }`}>
+                    {link.icon}
+                  </span>
+                  <span>{link.name}</span>
                 </button>
               ))}
+              
+              {/* Mobile CTA */}
               <button 
                 onClick={() => scrollToSection("contact")}
-                className="relative mt-4 px-8 py-3 font-semibold text-white rounded-lg text-center overflow-hidden group"
-                style={{
-                  background: 'var(--gradient-navbar)',
-                  boxShadow: 'var(--shadow-glow)',
-                  animation: 'scale-in 0.4s ease-out forwards',
-                  animationDelay: '0.3s',
-                }}
+                className="mt-4 flex items-center justify-center gap-2 py-3 px-6 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg"
               >
-                <span className="relative z-10">Get In Touch</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-secondary via-accent to-primary opacity-0 group-active:opacity-100 transition-opacity duration-300"></div>
+                <Phone size={16} />
+                Schedule Consultation
               </button>
             </div>
           </div>
