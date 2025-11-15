@@ -1,12 +1,15 @@
 // src/pages/Portfolio.tsx
 import { useState } from "react";
 import PortfolioModal from "@/components/PortfolioModal";
+import CartlowImage from "@/assets/portfolio/cartlow.png";
+import VitalsImage from "@/assets/portfolio/e-vitals.png";
+import BioMedImage from "@/assets/portfolio/mr-bio-med.png";
 
 export const projects = [
   {
     id: 1,
     title: "Cartlow",
-    img: "@/assets/portfolio/cartlow.png",
+    img: {CartlowImage},
     shortDesc: "High-Performance E-commerce Solution for Reverse Logistics.",
     description: "Developed a robust, scalable e-commerce platform specifically tailored for reverse logistics (refurbished goods). Focused on building a seamless user experience while optimizing for high traffic, fast load times, and complex inventory management. **Key contribution areas include API integration and front-end performance tuning.**",
     features: [
@@ -21,7 +24,7 @@ export const projects = [
   {
     id: 2,
     title: "E-Vitals (Remote Patient Monitoring Platform)",
-    img: "@/assets/portfolio/e-vitals.png",
+    img: {VitalsImage},
     shortDesc: "HIPAA-Compliant Remote Patient Monitoring (RPM) Platform.",
     description: "Designed and implemented a secure, scalable Remote Patient Monitoring (RPM) platform. This system facilitates real-time tracking of patient vitals, significantly enhancing the quality of care and ensuring high patient compliance. The architecture is built with strict adherence to **HIPAA/HITECH compliance standards** to safeguard sensitive patient data.",
     features: [
@@ -38,7 +41,7 @@ export const projects = [
   {
     id: 3,
     title: "MR BioMed (Medical Asset Management)",
-    img: "@/assets/portfolio/mr-bio-med.png",
+    img: {BioMedImage},
     shortDesc: "Cloud-Based Medical Equipment and Asset Management System.",
     description: "Developed a robust system for a healthcare company specializing in medical equipment management. The platform offers hospitals a cloud-based solution for tracking assets, scheduling maintenance, and ensuring compliance, moving their operations from manual tracking to a highly efficient digital system. **This directly contributes to patient safety and operational cost reduction for hospitals.**",
     features: [
